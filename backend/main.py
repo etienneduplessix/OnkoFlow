@@ -1,110 +1,79 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-from uuid import uuid4
-from datetime import datetime
-import redis
+from fastapi.responses import JSONResponse
 import os
-from sqlalchemy import create_engine, Column, String, Date, Text, DateTime
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-import time
-from sqlalchemy.exc import OperationalError
+import aiohttp
+from aiohttp import FormData
+import json
 
-# Environment vars
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:password@db:5432/onkoflow")
-REDIS_URL = os.getenv("REDIS_URL", "redis://redis:6379")
-
-# FastAPI app
 app = FastAPI()
 
-# CORS
+# Allow CORS for all origins (dev only!)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Replace with frontend domain in production
-    allow_credentials=True,
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-MAX_RETRIES = 10
-for i in range(MAX_RETRIES):
-    try:
-        engine = create_engine(DATABASE_URL)
-        engine.connect()  # test connection
-        break
-    except OperationalError:
-        print(f"[DB INIT] Attempt {i+1} failed, retrying in 3s...")
-        time.sleep(3)
-else:
-    raise RuntimeError("Could not connect to the database after several attempts.")
-
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-Base = declarative_base()
-
-# Redis setup
-r = redis.Redis.from_url(REDIS_URL)
-
-# Models
-class Snapshot(Base):
-    __tablename__ = "snapshots"
-    id = Column(String, primary_key=True, index=True)
-    name = Column(String)
-    birth_date = Column(Date)
-    diagnosis = Column(Text)
-    treatment = Column(Text)
-    allergies = Column(Text)
-    notes = Column(Text)
-    created_at = Column(DateTime, default=datetime.utcnow)
-
-Base.metadata.create_all(bind=engine)
-
-# Request schema
-class SnapshotCreate(BaseModel):
-    name: str
-    birth_date: str
-    diagnosis: str
-    treatment: str
-    allergies: str
-    notes: str | None = None
-
-# Routes
-@app.post("/snapshots")
-def create_snapshot(data: SnapshotCreate):
-    db = SessionLocal()
-    snapshot_id = str(uuid4())
-    snapshot = Snapshot(
-        id=snapshot_id,
-        name=data.name,
-        birth_date=data.birth_date,
-        diagnosis=data.diagnosis,
-        treatment=data.treatment,
-        allergies=data.allergies,
-        notes=data.notes,
-    )
-    db.add(snapshot)
-    db.commit()
-    db.close()
-
-    token = str(uuid4())
-    r.setex(token, 3600, snapshot_id)  # expires in 1 hour
-    return {"access_url": f"/snapshots/{token}"}
-
-@app.get("/snapshots/{token}")
-def get_snapshot(token: str):
-    snapshot_id = r.get(token)
-    if not snapshot_id:
-        raise HTTPException(status_code=404, detail="Invalid or expired token")
-    db = SessionLocal()
-    snapshot = db.query(Snapshot).filter(Snapshot.id == snapshot_id.decode()).first()
-    db.close()
-    if not snapshot:
-        raise HTTPException(status_code=404, detail="Snapshot not found")
-    return {
-        "name": snapshot.name,
-        "birth_date": str(snapshot.birth_date),
-        "diagnosis": snapshot.diagnosis,
-        "treatment": snapshot.treatment,
-        "allergies": snapshot.allergies,
-        "notes": snapshot.notes,
+# Async call to LLM container
+async def run_to_llm(upload_file_path: str):
+    url = "http://llm:5050/run-crew-task/"  # Make sure this matches your service
+    task_data_dict = {
+        "writer_agent": {
+            "role": "Technical PDF Analyst",
+            "goal": "Carefully read the provided PDF files and extract relevant technical details about the Rust 3D renderer, including architecture, shader handling, .obj parsing, math, and SCOP requirements.",
+            "backstory": "A detail-oriented software engineer with experience in Rust and 3D graphics. Specializes in dissecting documentation and pulling out precise engineering requirements for development teams."
+        },
+        "verifier_agent": {
+            "role": "Technical Summary Writer",
+            "goal": "Write a short, clear report that summarizes the most important technical information extracted by the reader agent.",
+            "backstory": "An experienced technical communicator who transforms complex findings into brief, accurate summaries for documentation or presentations. Focused on clarity, precision, and relevance."
+        },
+        "writing_task_description": "Based on the text extracted from the PDF files, identify and list the most critical technical requirements for building a Rust-based 3D renderer (e.g. OpenGL setup, shader implementation, .obj support, matrix math, SCOP compliance). Ignore general background or non-technical filler.",
+        "writing_task_expected_output": "A bullet-point or numbered list of key requirements: what the renderer must do, what constraints must be followed, what must be implemented manually (like shaders and parsers), and what tools/libraries are forbidden.",
+        "verification_task_description": "Using the extracted list, write a brief and clear summary suitable for inclusion in a report or project overview. It should clearly state the scope and goals of the renderer project.",
+        "verification_task_expected_output": "A short paragraph (max 6 sentences) summarizing the goals and implementation requirements for the Rust renderer, written in professional, technical language."
     }
+
+    form = FormData()
+    form.add_field(
+        "task_data",
+        json.dumps(task_data_dict),
+        content_type="application/json"
+    )
+
+    with open(upload_file_path, "rb") as f:
+        form.add_field(
+            "pdf_files",
+            f,
+            filename=os.path.basename(upload_file_path),
+            content_type="application/pdf"
+        )
+
+        async with aiohttp.ClientSession() as session:
+            async with session.post(url, data=form) as response:
+                if response.status == 200:
+                    return await response.json()
+                else:
+                    return {
+                        "error": f"Failed with status {response.status}",
+                        "details": await response.text()
+                    }
+
+# File upload route
+@app.post("/upload")
+async def upload_file(file: UploadFile = File(...)):
+    os.makedirs("uploads", exist_ok=True)
+    file_path = f"uploads/{file.filename}"
+
+    with open(file_path, "wb") as f:
+        f.write(await file.read())
+
+    llm_response = await run_to_llm(file_path)
+
+    return JSONResponse(content={
+        "filename": file.filename,
+        "status": "uploaded",
+        "llm_response": llm_response
+    })

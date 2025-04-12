@@ -3,13 +3,66 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>OnkoFlow</title>
+  <title>Upload Files</title>
   <link href="/dist/output.css" rel="stylesheet" />
 </head>
 <body class="bg-gray-100 flex items-center justify-center h-screen">
-  <div class="text-center">
-    <h1 class="text-4xl font-bold text-blue-600">Welcome to OnkoFlow</h1>
-    <p class="mt-2 text-gray-700">Simple. Fast. Tailwind-powered.</p>
+  <div class="bg-white p-8 rounded shadow-md w-full max-w-md">
+    <h1 class="text-2xl font-bold text-blue-600 mb-4 text-center">Upload a File</h1>
+    
+    <form id="uploadForm">
+      <input 
+        type="file" 
+        id="fileInput" 
+        accept=".png,.jpg,.jpeg,.pdf,.doc,.docx"
+        class="block w-full mb-4 border border-gray-300 rounded p-2"
+        required 
+      />
+
+      <button 
+        type="submit" 
+        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded"
+      >
+        Upload
+      </button>
+    </form>
+
+    <p id="statusMessage" class="mt-4 text-center text-gray-700"></p>
   </div>
+
+  <script>
+    const form = document.getElementById('uploadForm');
+    const fileInput = document.getElementById('fileInput');
+    const statusMessage = document.getElementById('statusMessage');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const file = fileInput.files[0];
+      if (!file) {
+        alert("Please select a file first.");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        const response = await fetch('http://localhost:8000/upload', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (response.ok) {
+          statusMessage.textContent = "✅ File uploaded successfully!";
+        } else {
+          statusMessage.textContent = "❌ Upload failed.";
+        }
+      } catch (err) {
+        console.error("Upload error:", err);
+        statusMessage.textContent = "⚠️ Network or server error.";
+      }
+    });
+  </script>
 </body>
 </html>

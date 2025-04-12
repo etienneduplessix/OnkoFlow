@@ -1,0 +1,84 @@
+{# templates/pdf_sections/_diagnosis_section.html #}
+
+{% if data.OnkologickeOnemocneni and data.OnkologickeOnemocneni|length > 0 %}
+ {% set diag = data.OnkologickeOnemocneni[0] %}
+<div class="card">
+    <h2>Diagnóza</h2>
+     <dl class="info-list">
+         {# Basic Info fields #}
+         {% if diag.nazevDiagnozy is not none %} <dt>Název diagnózy:</dt> <dd>{{ diag.nazevDiagnozy }}</dd> {% endif %}
+         {% if diag.datumDiagnozy is not none %} <dt>Datum diagnózy:</dt> <dd>{{ diag.datumDiagnozy }}</dd> {% endif %}
+         {% if diag.kodMKN10 is not none %} <dt>MKN-10 kód:</dt> <dd>{{ diag.kodMKN10 }}</dd> {% endif %}
+         {% if diag.topografie is not none %} <dt>Topografie:</dt> <dd>{{ diag.topografie }}</dd> {% endif %}
+         {% if diag.lateralita is not none %} <dt>Lateralita:</dt> <dd>{{ diag.lateralita }}</dd> {% endif %}
+         {% if diag.histologickyTypNadoru is not none %} <dt>Histologický typ:</dt> <dd>{{ diag.histologickyTypNadoru }}</dd> {% endif %}
+         {% if diag.grading and (diag.grading.klasifikace is not none or diag.grading.skore is not none) %}
+             <dt>Grading:</dt>
+             <dd>
+                 {% if diag.grading.klasifikace and diag.grading.skore %}{{ diag.grading.klasifikace }}: {{ diag.grading.skore }}{% elif diag.grading.klasifikace %}{{ diag.grading.klasifikace }}{% elif diag.grading.skore %}Skóre: {{ diag.grading.skore }}{% endif %}{% if diag.grading.poznamky %} ({{ diag.grading.poznamky }}){% endif %}
+             </dd>
+         {% endif %}
+         {% if diag.klinickeStadium is not none %} <dt>Klinické stadium:</dt> <dd>{{ diag.klinickeStadium }}</dd> {% endif %}
+     </dl>
+
+    {# --- TNM (Using CSS Grid defined in export_template.html) --- #}
+    {% if diag.klinickeTNM or diag.patologickeTNM %}
+        <h3>TNM klasifikace</h3>
+         <div class="tnm-grid-pdf"> {# <-- Use CSS Grid container class #}
+             {% if diag.klinickeTNM %}
+             <div class="tnm-section-pdf"> {# <-- Use CSS Grid item class #}
+                 <h4>Klinické TNM</h4>
+                 <ul> {# No inline style needed, handled by tnm-section-pdf ul #}
+                     {% if diag.klinickeTNM.T is not none %}<li><strong>T:</strong> {{ diag.klinickeTNM.T }}</li>{% endif %}
+                     {% if diag.klinickeTNM.N is not none %}<li><strong>N:</strong> {{ diag.klinickeTNM.N }}</li>{% endif %}
+                     {% if diag.klinickeTNM.M is not none %}<li><strong>M:</strong> {{ diag.klinickeTNM.M }}</li>{% endif %}
+                     {% if diag.klinickeTNM.T is none and diag.klinickeTNM.N is none and diag.klinickeTNM.M is none %}<li><em>Žádné údaje.</em></li>{% endif %}
+                 </ul>
+             </div>
+             {% endif %}
+             {% if diag.patologickeTNM %}
+              <div class="tnm-section-pdf"> {# <-- Use CSS Grid item class #}
+                 <h4>Patologické TNM</h4>
+                  <ul> {# No inline style needed #}
+                     {% if diag.patologickeTNM.T is not none %}<li><strong>T:</strong> {{ diag.patologickeTNM.T }}</li>{% endif %}
+                     {% if diag.patologickeTNM.N is not none %}<li><strong>N:</strong> {{ diag.patologickeTNM.N }}</li>{% endif %}
+                     {% if diag.patologickeTNM.M is not none %}<li><strong>M:</strong> {{ diag.patologickeTNM.M }}</li>{% endif %}
+                     {% if diag.patologickeTNM.T is none and diag.patologickeTNM.N is none and diag.patologickeTNM.M is none %}<li><em>Žádné údaje.</em></li>{% endif %}
+                 </ul>
+             </div>
+              {% endif %}
+         </div>
+    {% endif %}
+
+     {# --- Tumor Markers --- #}
+     {% if diag.nadoroveMarkery %}
+         <h3>Nádorové markery</h3>
+         <div class="tumor-markers">
+             {% if diag.nadoroveMarkery.ERStatus is not none %} <div class="marker {{ 'positive' if diag.nadoroveMarkery.ERStatus == 'Pozitivní' else 'neutral' }}"><span class="marker-name">ER:</span> <span class="marker-value">{{ diag.nadoroveMarkery.ERStatus }}</span></div> {% endif %}
+             {% if diag.nadoroveMarkery.PRStatus is not none %} <div class="marker {{ 'positive' if diag.nadoroveMarkery.PRStatus == 'Pozitivní' else 'neutral' }}"><span class="marker-name">PR:</span> <span class="marker-value">{{ diag.nadoroveMarkery.PRStatus }}</span></div> {% endif %}
+             {% if diag.nadoroveMarkery.HER2Status is not none %} <div class="marker {{ 'positive' if diag.nadoroveMarkery.HER2Status == 'Pozitivní' else 'neutral' }}"><span class="marker-name">HER2:</span> <span class="marker-value">{{ diag.nadoroveMarkery.HER2Status }}</span></div> {% endif %}
+             {% if diag.nadoroveMarkery.Ki67 is not none %} <div class="marker neutral"><span class="marker-name">Ki67:</span> <span class="marker-value">{{ diag.nadoroveMarkery.Ki67 }}%</span></div> {% endif %}
+             {% if diag.nadoroveMarkery.jineMarkery is not none %} <div class="marker neutral"><span class="marker-name">Jiné:</span> <span class="marker-value">{{ diag.nadoroveMarkery.jineMarkery }}</span></div> {% endif %}
+         </div>
+         {% if diag.nadoroveMarkery.ERStatus is none and diag.nadoroveMarkery.PRStatus is none and diag.nadoroveMarkery.HER2Status is none and diag.nadoroveMarkery.Ki67 is none and diag.nadoroveMarkery.jineMarkery is none %}
+              <p><em>Žádné nádorové markery nebyly zaznamenány.</em></p>
+         {% endif %}
+     {% endif %}
+
+     {# --- Other Characteristics --- #}
+     {% if diag.velikostNadoru or diag.lymfatickeUzliny or diag.skoreRecidivy %}
+         <h3>Další charakteristiky</h3>
+         <dl class="info-list">
+             {% if diag.velikostNadoru and diag.velikostNadoru.velikost is not none %} <dt>Velikost nádoru:</dt> <dd>{{ diag.velikostNadoru.velikost }}{% if diag.velikostNadoru.lokalizace %} (Lokalizace: {{ diag.velikostNadoru.lokalizace }}){% endif %}</dd> {% endif %}
+             {% if diag.lymfatickeUzliny and (diag.lymfatickeUzliny.pomerUzlin or diag.lymfatickeUzliny.sentinel is not none) %}
+                 <dt>Lymfatické uzliny:</dt>
+                 <dd>{% if diag.lymfatickeUzliny.pomerUzlin and (diag.lymfatickeUzliny.pomerUzlin.pozitivni is not none or diag.lymfatickeUzliny.pomerUzlin.vysetrene is not none) %} Poměr: {{ diag.lymfatickeUzliny.pomerUzlin.pozitivni | default('?') }}/{{ diag.lymfatickeUzliny.pomerUzlin.vysetrene | default('?') }} {% endif %} {% if diag.lymfatickeUzliny.pomerUzlin and diag.lymfatickeUzliny.sentinel is not none %} | {% endif %} {% if diag.lymfatickeUzliny.sentinel is not none %} Sentinel: {{ diag.lymfatickeUzliny.sentinel }} {% endif %} </dd> {# Added separator if both present #}
+             {% endif %}
+             {% if diag.skoreRecidivy and diag.skoreRecidivy.skore is not none %}
+                 <dt>Skóre recidivy:</dt>
+                 <dd>{% if diag.skoreRecidivy.nazevTestu %}{{ diag.skoreRecidivy.nazevTestu }}: {% endif %}{{ diag.skoreRecidivy.skore }}</dd>
+             {% endif %}
+         </dl>
+     {% endif %}
+</div>
+{% endif %}

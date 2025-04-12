@@ -1,0 +1,55 @@
+{% extends "layout.html" %}
+
+{% block title %}Uložit OnkoPass{% endblock %}
+
+{% block content %}
+<div class="save-container">
+    <h2>Uložit OnkoPass na zařížení</h2>
+    
+    <div class="card">
+        <h3>Naskenujte QR kód</h3>
+        
+        <div class="qr-container">
+            <div id="camera-container">
+                <video id="camera-preview" autoplay playsinline></video>
+                <canvas id="camera-canvas" style="display:none;"></canvas>
+                <div id="camera-overlay">
+                    <div class="camera-instructions">Vycentrujte QR kód</div>
+                </div>
+            </div>
+            <div id="qr-reader-results"></div>
+        </div>
+        
+        <div class="button-container">
+            <button id="start-camera" class="btn primary">Zapnout kameru</button>
+            <button id="stop-camera" class="btn secondary" style="display:none;">Ukončit</button>
+        </div>
+    </div>
+    
+    <div class="card" id="qr-result" style="display:none;">
+        <h3>Naskenovaný QR kód</h3>
+        
+        <div class="qr-display">
+            <canvas id="qr-canvas"></canvas>
+        </div>
+        
+        <div class="button-container">
+            <button id="download-qr" class="btn primary">Stáhnout OnkoPass</button>
+        </div>
+    </div>
+    
+    <div class="instructions">
+        <h4>Instrukce:</h4>
+        <ol>
+            <li>Klikněte na "Zapnout kameru"</li>
+            <li>Povolte přístup ke kameře</li>
+            <li>Vycentrujte OnkoPass QR kód pacienta v rámečku</li>
+            <li>Systém automaticky rozpozná a naskenuje QR kód</li>
+            <li>Po naskenování klikněte na "Stáhnout OnkoPass" pro uložení QR kódu na vaše zařízení</li>
+        </ol>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+<script src="{{ url_for('static', filename='js/qr-saver.js') }}"></script>
+{% endblock %}

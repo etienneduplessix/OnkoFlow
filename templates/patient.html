@@ -1,0 +1,206 @@
+{% extends "layout.html" %}
+
+{% block title %}Informace o pacientovi{% endblock %}
+
+{% block content %}
+<div class="patient-details">
+    <h2>Informace o pacientovi</h2>
+
+    {% if data.Pacient %}
+        {# --- Basic Data Card --- #}
+        <div class="card">
+            <h3>Základní údaje</h3>
+            <dl class="info-list">
+                {% if data.Pacient.cisloPojistence is not none %}
+                    <dt>Číslo pojištěnce:</dt>
+                    <dd>{{ data.Pacient.cisloPojistence }}</dd>
+                {% endif %}
+                {% if data.Pacient.kodZP is not none %}
+                    <dt>Kód ZP:</dt>
+                    <dd>{{ data.Pacient.kodZP }}</dd>
+                {% endif %}
+                {% if data.Pacient.datumNarozeni is not none %}
+                    <dt>Datum narození:</dt>
+                    <dd>{{ data.Pacient.datumNarozeni }}</dd>
+                {% endif %}
+                {# Věk needs calculation #}
+                {% if data.Pacient.pohlavi is not none %}
+                    <dt>Pohlaví:</dt>
+                    <dd>{{ data.Pacient.pohlavi }}</dd>
+                {% endif %}
+                {% if data.Pacient.koureni is not none %}
+                    <dt>Kouření:</dt>
+                    <dd>{{ data.Pacient.koureni }}</dd>
+                {% endif %}
+                {% if data.Pacient.alkohol is not none %}
+                    <dt>Alkohol:</dt>
+                    <dd>{{ data.Pacient.alkohol }}</dd>
+                {% endif %}
+                {% if data.Pacient.performanceStatus and data.Pacient.performanceStatus.skore is not none %}
+                    <dt>Výkonnostní stav:</dt>
+                    <dd>
+                        {{ data.Pacient.performanceStatus.skore }}
+                        {% if data.Pacient.performanceStatus.stupnice %}({{ data.Pacient.performanceStatus.stupnice }}){% endif %}
+                    </dd>
+                {% endif %}
+            </dl>
+        </div>
+
+        {# --- Vital Signs Card --- #}
+        {% if data.Pacient.vitalniZnaky and (data.Pacient.vitalniZnaky.vyska is not none or data.Pacient.vitalniZnaky.vaha is not none or data.Pacient.vitalniZnaky.bmi is not none) %}
+        <div class="card">
+            <h3>Vitální znaky</h3>
+            <dl class="info-list">
+                {% if data.Pacient.vitalniZnaky.vyska is not none %}
+                    <dt>Výška (cm):</dt>
+                    <dd>{{ data.Pacient.vitalniZnaky.vyska }}</dd>
+                {% endif %}
+                {% if data.Pacient.vitalniZnaky.vaha is not none %}
+                    <dt>Váha (kg):</dt>
+                    <dd>{{ data.Pacient.vitalniZnaky.vaha }}</dd>
+                {% endif %}
+                {% if data.Pacient.vitalniZnaky.bmi is not none %}
+                    <dt>BMI:</dt>
+                    <dd>{{ data.Pacient.vitalniZnaky.bmi }}</dd>
+                {% endif %}
+            </dl>
+        </div>
+        {% endif %}
+
+        {# --- Current Diseases Card --- #}
+        {% if data.Pacient.nynejsiOnemocneni %}
+        <div class="card">
+            <h3>Nynější onemocnění (Komorbidity)</h3>
+             {% set has_current_disease = false %}
+            <ul class="generic-list">
+                {% for item in data.Pacient.nynejsiOnemocneni %}
+                    {% if item.nazev is not none or item.kodMKN10 is not none or item.casDiagnozy is not none %}
+                        {% set has_current_disease = true %}
+                        <li>
+                            {% if item.nazev %}{{ item.nazev }}{% endif %}
+                            {% if item.kodMKN10 %} ({{ item.kodMKN10 }}){% endif %}
+                            {% if item.casDiagnozy %} - Dg: {{ item.casDiagnozy }}{% endif %}
+                        </li>
+                    {% endif %}
+                {% endfor %}
+             </ul>
+            {% if not has_current_disease %}
+                <p><em>Žádná relevantní nynější onemocnění nebyla zaznamenána.</em></p>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        {# --- Previous Diseases Card --- #}
+        {% if data.Pacient.predeslaOnemocneni %}
+        <div class="card">
+            <h3>Předešlá onemocnění (Anamnéza)</h3>
+            {% set has_previous_disease = false %}
+            <ul class="generic-list">
+                {% for item in data.Pacient.predeslaOnemocneni %}
+                     {% if item.nazev is not none or item.kodMKN10 is not none or item.casDiagnozy is not none %}
+                        {% set has_previous_disease = true %}
+                        <li>
+                            {% if item.nazev %}{{ item.nazev }}{% endif %}
+                            {% if item.kodMKN10 %} ({{ item.kodMKN10 }}){% endif %}
+                            {% if item.casDiagnozy %} - Dg: {{ item.casDiagnozy }}{% endif %}
+                        </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+            {% if not has_previous_disease %}
+                <p><em>Žádná relevantní předešlá onemocnění nebyla zaznamenána.</em></p>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        {# --- Allergies Card --- #}
+        {% if data.Pacient.alergie is not none %}
+        <div class="card">
+            <h3>Alergie</h3>
+            <p>{{ data.Pacient.alergie }}</p>
+        </div>
+        {% endif %}
+
+        {# --- Medications Card --- #}
+        {% if data.Pacient.medikace %}
+        <div class="card">
+            <h3>Medikace</h3>
+             {% set has_medication = false %}
+             <ul class="generic-list">
+                {% for item in data.Pacient.medikace %}
+                     {% if item.lek is not none or item.davkovani is not none %}
+                        {% set has_medication = true %}
+                        <li>
+                            {% if item.lek %}{{ item.lek }}{% endif %}
+                            {% if item.davkovani %} ({{ item.davkovani }}){% endif %}
+                        </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+            {% if not has_medication %}
+                <p><em>Žádná relevantní medikace nebyla zaznamenána.</em></p>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        {# --- Surgeries/Injuries Card --- #}
+        {% if data.Pacient.operaceUrazy is not none %}
+        <div class="card">
+            <h3>Operace / Úrazy</h3>
+             <p>{{ data.Pacient.operaceUrazy }}</p>
+        </div>
+        {% endif %}
+
+        {# --- Gynecology Card --- #}
+        {% if data.Pacient.gynekologie and (data.Pacient.gynekologie.menstruacniCyklus is not none or data.Pacient.gynekologie.tehotenstviPorodPotrat is not none or data.Pacient.gynekologie.menopauza is not none) %}
+        <div class="card">
+            <h3>Gynekologická anamnéza</h3>
+            <dl class="info-list">
+                 {% if data.Pacient.gynekologie.menstruacniCyklus is not none %}
+                    <dt>Menstruační cyklus:</dt><dd>{{ data.Pacient.gynekologie.menstruacniCyklus }}</dd>
+                 {% endif %}
+                 {% if data.Pacient.gynekologie.tehotenstviPorodPotrat is not none %}
+                    <dt>Těhotenství/Porod/Potrat:</dt><dd>{{ data.Pacient.gynekologie.tehotenstviPorodPotrat }}</dd>
+                 {% endif %}
+                 {% if data.Pacient.gynekologie.menopauza is not none %}
+                    <dt>Menopauza:</dt><dd>{{ data.Pacient.gynekologie.menopauza }}</dd>
+                 {% endif %}
+            </dl>
+        </div>
+        {% endif %}
+
+        {# --- Family History Card --- #}
+        {% if data.Pacient.rodinnaAnamneza %}
+        <div class="card">
+            <h3>Rodinná anamnéza</h3>
+             {% set has_family_history = false %}
+            <ul class="family-list">
+                {% for pribuzny in data.Pacient.rodinnaAnamneza %}
+                 {% if pribuzny.vztah is not none or pribuzny.onemocneni is not none %}
+                    {% set has_family_history = true %}
+                    <li>
+                        {% if pribuzny.vztah %}<strong>{{ pribuzny.vztah }}:</strong>{% endif %}
+                        {% if pribuzny.onemocneni %} {{ pribuzny.onemocneni }}{% endif %}
+                        {% if pribuzny.vekPriDiagnoze is not none %}
+                            <span class="detail">(věk při Dg: {{ pribuzny.vekPriDiagnoze }})</span>
+                        {% endif %}
+                        {% if pribuzny.zemrel is not none %}
+                             <span class="detail">- Úmrtí: {{ 'Ano' if pribuzny.zemrel else 'Ne' }}</span>
+                        {% endif %}
+                    </li>
+                 {% endif %}
+                {% endfor %}
+            </ul>
+            {% if not has_family_history %}
+                <p><em>Žádná relevantní rodinná anamnéza nebyla zaznamenána.</em></p>
+            {% endif %}
+        </div>
+        {% endif %}
+
+    {% else %}
+         <div class="card">
+            <p><em>Základní informace o pacientovi nejsou k dispozici.</em></p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

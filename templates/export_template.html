@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <title>OnkoPass - Přehled Pacienta PDF</title>
+    {# Link to your main CSS file - WeasyPrint needs the full URL or path #}
+    {# Using url_for should work if the Flask dev server is running when PDF is generated #}
+    {# For production, consider absolute paths or embedding #}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css', _external=True) }}"> {# Added _external=True #}
+
+    <style>
+        /* === Improved Print Styles === */
+        @page {
+            size: A4;
+            margin: 1.5cm; /* Generous margins */
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif, Arial, sans-serif; /* Added fallback fonts */
+            font-size: 10pt;
+            line-height: 1.45; /* Slightly increased line height */
+            color: #333;
+        }
+        .container {
+            max-width: 100%;
+            padding: 0;
+            margin: 0;
+        }
+
+        /* --- Headings --- */
+        h1, h2, h3, h4 {
+            page-break-after: avoid; /* Try to keep headings with content below */
+            margin-bottom: 0.6em;
+            margin-top: 1.2em; /* More space before headings */
+            font-weight: bold;
+            color: #1a2a45; /* Darker color for headings */
+        }
+        h1 {
+            font-size: 18pt;
+            border-bottom: 2px solid #333;
+            padding-bottom: 8px;
+            margin-bottom: 1.2em;
+            margin-top: 0; /* No top margin for the first heading */
+        }
+        h2 {
+            font-size: 14pt;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 5px;
+            margin-top: 1.8em; /* More space before major sections */
+        }
+        h3 {
+            font-size: 12pt;
+            margin-top: 1.5em;
+        }
+        h4 {
+            font-size: 11pt; /* Slightly larger */
+            margin-bottom: 0.4em;
+        }
+        h5 {
+            font-size: 10pt;
+            font-weight: bold;
+            margin-top: 1em;
+            margin-bottom: 0.3em;
+            color: #555;
+        }
+
+        /* --- Paragraphs and General Text --- */
+        p, li, dd {
+            overflow-wrap: break-word; /* Crucial for wrapping long text */
+            word-wrap: break-word; /* Older browsers */
+        }
+        p {
+            margin-bottom: 0.8em;
+        }
+
+        /* --- Card Styling --- */
+        .card {
+            border: 1px solid #ddd; /* Lighter border */
+            padding: 15px 20px;
+            margin-bottom: 25px;
+            page-break-inside: avoid;
+            background-color: #fff;
+            box-shadow: none;
+            border-radius: 3px; /* Subtle rounding */
+        }
+
+        /* --- Definition Lists (Key-Value Pairs) - Using CSS Grid --- */
+        dl.info-list {
+            display: grid;
+            /* Adjust column width as needed: 'auto' fits content, '1fr' takes remaining space */
+            grid-template-columns: minmax(150px, auto) 1fr;
+            gap: 6px 15px; /* row-gap column-gap */
+            margin-bottom: 1em;
+        }
+        dl.info-list dt {
+            font-weight: bold;
+            grid-column: 1;
+            padding-right: 10px; /* Space between label and value */
+            text-align: left; /* Ensure left alignment */
+        }
+        dl.info-list dd {
+            grid-column: 2;
+            margin-left: 0; /* Reset margin from potential browser defaults */
+             /* overflow-wrap: break-word; */ /* Already applied globally */
+        }
+        /* Remove float clearing if previously used */
+        /* dl.info-list::after { content: none; } */
+
+        /* --- Lists --- */
+        ul, ol {
+            padding-left: 25px; /* Indent lists */
+            margin-bottom: 1em;
+        }
+        li {
+            margin-bottom: 6px; /* Space between list items */
+        }
+        ul.generic-list, ul.drug-list, ul.findings-list, ul.family-list {
+             list-style: disc; /* Ensure standard bullets */
+        }
+        ul.condensed-list li {
+             margin-bottom: 3px;
+        }
+        ul[style*="list-style: none"] { /* Target explicitly styled lists if any */
+            padding-left: 0;
+            list-style: none;
+        }
+
+
+        /* --- Specific Sections --- */
+        .therapy-section {
+            margin-bottom: 1.5em; /* More space between therapy types */
+            padding-left: 10px; /* Slight indent for therapy details */
+            border-left: 2px solid #eee; /* Visual separator */
+        }
+        .drug-details {
+            font-size: 9pt; /* Smaller font for details */
+            color: #444;
+            margin-left: 5px;
+            line-height: 1.3;
+        }
+        .drug-details span {
+            margin-right: 8px; /* Space between detail parts */
+        }
+
+        /* --- TNM Grid (Using CSS Grid) --- */
+        .tnm-grid-pdf { /* Specific class for PDF TNM layout */
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* Two equal columns */
+            gap: 10px 25px; /* row-gap column-gap */
+            margin-top: 0.5em;
+            margin-bottom: 1em;
+        }
+        .tnm-section-pdf ul {
+            list-style: none;
+            padding-left: 0;
+            margin-top: 0.3em;
+        }
+        .tnm-section-pdf li {
+             margin-bottom: 4px;
+        }
+
+        /* --- Tumor Markers --- */
+        .tumor-markers {
+             margin-top: 0.5em;
+        }
+        .tumor-markers .marker {
+            border: 1px solid #ccc;
+            padding: 4px 8px; /* Slightly smaller padding */
+            margin-right: 8px;
+            margin-bottom: 8px;
+            display: inline-block;
+            border-radius: 3px;
+            font-size: 9pt;
+        }
+        .marker-name { font-weight: bold; }
+        .marker-value { margin-left: 5px; }
+
+        /* --- Status Badge --- */
+        .status-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 9pt;
+            color: #333;
+            background-color: #e9ecef; /* Default light gray */
+            border: 1px solid #ced4da;
+            /* Add specific status colors if needed, ensure they match your style.css */
+        }
+        .status-badge.stabilizované-onemocnění { background-color: #fff3cd; border-color: #ffeeba; color: #856404;}
+        .status-badge.progrese-onemocnění { background-color: #f8d7da; border-color: #f5c6cb; color: #721c24;}
+        .status-badge.částečná-remise, .status-badge.castecna-remise { background-color: #d1ecf1; border-color: #bee5eb; color: #0c5460;}
+        .status-badge.kompletní-remise, .status-badge.kompletni-remise { background-color: #d4edda; border-color: #c3e6cb; color: #155724;}
+        .status-badge.neznámý, .status-badge.neznamy { background-color: #e9ecef; border-color: #ced4da; color: #333; }
+
+        /* Hide elements not needed for print */
+        .export-controls, nav /* Hide nav in PDF */ { display: none !important; }
+        /* Ensure header h1 is visible if needed, otherwise hide whole header */
+        /* header { display: none; } */
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>OnkoPass - Přehled Pacienta</h1>
+        <p style="font-size: 9pt; color: #555;">
+            Datum exportu: {{ now.strftime('%d.%m.%Y %H:%M:%S') }}
+            {% if icz %} | Export proveden pro IČZ: {{ icz }}{% endif %}
+        </p>
+
+        {# --- Include Patient Section --- #}
+        {% include 'pdf_sections/_patient_section.html' %}
+
+        {# --- Include Diagnosis Section --- #}
+         {% include 'pdf_sections/_diagnosis_section.html' %}
+
+         {# --- Include Genomics Section --- #}
+         {% include 'pdf_sections/_genomics_section.html' %}
+
+        {# --- Include Treatment Section --- #}
+         {% include 'pdf_sections/_treatment_section.html' %}
+
+         {# --- Include Disease Status Section --- #}
+         {% include 'pdf_sections/_status_section.html' %}
+
+         {# --- Include Follow-up Section --- #}
+         {% include 'pdf_sections/_followup_section.html' %}
+
+    </div>
+</body>
+</html>

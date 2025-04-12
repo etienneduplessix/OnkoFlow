@@ -1,0 +1,13 @@
+{% if data.Sledovani and data.Sledovani.planDohledu and data.Sledovani.planDohledu|length > 0 %}
+    {% set plan = data.Sledovani.planDohledu[0] %}
+    {% if plan.aktivniMonitoring is not none or plan.metoda is not none or plan.frekvence is not none %}
+    <div class="card">
+        <h2>Plánované sledování</h2>
+        <dl class="info-list">
+            {% if plan.aktivniMonitoring is not none %} <dt>Aktivní monitoring:</dt> <dd>{{ 'Ano' if plan.aktivniMonitoring else 'Ne' }}</dd> {% endif %}
+            {% if plan.metoda is not none %} <dt>Metoda:</dt> <dd>{{ plan.metoda }}</dd> {% endif %}
+            {% if plan.frekvence is not none %} <dt>Frekvence:</dt> <dd>{{ plan.frekvence }}</dd> {% endif %}
+        </dl>
+    </div>
+    {% endif %}
+{% endif %}

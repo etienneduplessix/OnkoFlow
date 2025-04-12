@@ -1,0 +1,842 @@
+:root {
+    --primary-color: #2c7bb6;
+    --primary-dark: #236a9f;
+    --primary-light: #4c93c5;
+    --secondary-color: #2ca02c;
+    --accent-color: #ff7f0e;
+    --light-gray: #f8f9fa;
+    --mid-gray: #e9ecef;
+    --dark-gray: #343a40;
+    --danger-color: #d9534f;
+    --success-color: #5cb85c;
+    --warning-color: #f0ad4e;
+    --info-color: #5bc0de;
+    --active-nav-color: #ffc107;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: var(--light-gray);
+    font-size: 16px; /* Base font size for mobile readability */
+}
+
+.container {
+    width: 95%; /* Keep it responsive */
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 10px; /* Add some horizontal padding for small screens */
+}
+
+header {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 1rem 0;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem; /* Slightly reduce margin for mobile */
+}
+
+header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap; /* Allow wrapping on very small screens */
+}
+
+header h1 {
+    font-size: 1.8rem; /* Slightly smaller title for mobile */
+    font-weight: 700;
+    margin-bottom: 0.5rem; /* Add space if wraps */
+}
+
+nav {
+    width: 100%; /* Take full width when wrapped */
+}
+
+nav ul {
+    display: flex;
+    list-style: none;
+    flex-wrap: wrap; /* Allow nav items to wrap */
+    justify-content: center; /* Center items when wrapped */
+}
+
+nav ul li {
+    margin: 0.5rem 0.75rem; /* Adjust spacing for mobile */
+}
+
+nav ul li a {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s, background-color 0.3s;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    display: block; /* Make links block level for easier tapping */
+}
+
+nav ul li a:hover {
+    color: var(--light-gray);
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+nav ul li a.active {
+    background-color: var(--active-nav-color);
+    color: var(--dark-gray);
+    font-weight: 700;
+}
+
+main {
+    padding: 1rem 0 3rem;
+    min-height: calc(100vh - 130px); /* Adjust based on header/footer height */
+}
+
+footer {
+    background-color: var(--dark-gray);
+    color: white;
+    padding: 1rem 0;
+    text-align: center;
+    font-size: 0.9em; /* Smaller font size for footer */
+}
+
+/* Cards */
+.card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 1rem; /* Slightly reduced padding for smaller screens */
+    margin-bottom: 1rem; /* Slightly reduced margin for smaller screens */
+    font-size: 0.95em; /* Slightly smaller font size within cards */
+}
+
+.card h3 {
+    color: var(--primary-color);
+    margin-bottom: 0.75rem; /* Slightly reduced margin */
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--mid-gray);
+    font-size: 1.2rem; /* Adjust heading size */
+}
+
+/* Add spacing within card info sections */
+.patient-info p,
+.diagnosis-info p,
+.treatment-info p,
+.status-info p {
+    margin-bottom: 0.6em; /* Add vertical spacing between paragraphs */
+}
+
+/* Start page & QR scanning */
+.start-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.start-container h2 {
+    text-align: center;
+    margin-bottom: 1.5rem; /* Slightly reduced margin */
+    color: var(--dark-gray);
+}
+
+.qr-container {
+    margin: 1rem 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#qr-reader {
+    width: 100%; /* Ensure it uses available width */
+    max-width: 500px;
+    margin: 0 auto;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+#qr-reader video {
+    width: 100%;
+    height: auto; /* Maintain aspect ratio */
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+#qr-reader-results {
+    margin-top: 1rem;
+    width: 100%;
+    text-align: center;
+}
+
+.button-container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap; /* Allow buttons to wrap */
+    gap: 0.75rem; /* Smaller gap for mobile */
+    margin: 1rem 0;
+}
+
+.btn {
+    padding: 0.75rem 1.25rem; /* Adjust padding */
+    border: none;
+    border-radius: 4px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    text-align: center; /* Ensure text is centered */
+}
+
+.btn:active {
+    transform: scale(0.98);
+}
+
+.btn.primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn.secondary {
+    background-color: var(--mid-gray);
+    color: var(--dark-gray);
+}
+
+.btn.primary:hover {
+    background-color: #236a9f;
+}
+
+.btn.secondary:hover {
+    background-color: #dee2e6;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--mid-gray);
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.instructions {
+    margin-top: 1.5rem; /* Slightly reduced margin */
+    padding: 1rem;
+    background-color: #e8f4fa;
+    border-radius: 8px;
+    font-size: 0.9em; /* Smaller font size for instructions */
+}
+
+.instructions h4 {
+    margin-bottom: 0.5rem;
+    font-size: 1.1em; /* Adjust heading size */
+}
+
+.instructions ol {
+    padding-left: 1.5rem;
+}
+
+.instructions li {
+    margin-bottom: 0.5rem;
+}
+
+/* Alert messages */
+.messages-container {
+    margin: 1rem 0;
+}
+
+.alert {
+    padding: 1rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    font-size: 0.9em; /* Smaller font for alerts */
+}
+
+.alert.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.alert.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.alert.warning {
+    background-color: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeeba;
+}
+
+.alert.info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+}
+
+/* Dashboard */
+.dashboard {
+    /* Already stacks on smaller screens via media query, which is good */
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem; /* Slightly reduced gap for smaller screens */
+}
+
+.dashboard h2 {
+    grid-column: 1 / -1;
+    color: var(--dark-gray);
+    margin-bottom: 1rem;
+    text-align: center; /* Center title on mobile */
+}
+
+.dashboard .card {
+    height: auto; /* Allow height to adjust to content */
+    min-width: 0; /* Prevent overflow issues with grid items */
+}
+
+/* Genomics List Items - Add spacing */
+.genomics-info ul {
+    list-style: disc; /* Add default bullets back */
+    padding-left: 1.2em; /* Add padding for bullets */
+}
+.genomics-info ul li {
+    margin-bottom: 0.8em; /* Add vertical spacing between list items */
+    line-height: 1.4; /* Adjust line height for better readability */
+}
+
+/* Remove or comment out table-specific styles if no longer needed FOR THIS PAGE */
+/*
+.table-responsive-wrapper { ... }
+.data-table { ... }
+.data-table th, .data-table td { ... }
+*/
+
+/* Styling for Definition Lists (dl, dt, dd) */
+.info-list {
+    margin-bottom: 1rem;
+}
+.info-list dt {
+    font-weight: 600;
+    color: var(--dark-gray);
+    margin-bottom: 0.25rem;
+    font-size: 0.9em;
+}
+.info-list dd {
+    margin-left: 0;
+    margin-bottom: 0.8rem;
+    padding-left: 0.5rem;
+    border-left: 2px solid var(--mid-gray);
+}
+
+/* Styling for Family History List */
+.family-list {
+    list-style: disc; /* Use bullets */
+    padding-left: 1.5rem; /* Indent list */
+    margin-top: 0.5rem; /* Space above list */
+}
+.family-list li {
+    margin-bottom: 0.75rem; /* Space between relatives */
+    line-height: 1.5; /* Improve readability */
+}
+.family-list li strong { /* Relationship */
+    margin-right: 0.3em; /* Small space after relationship */
+}
+.family-list li .detail { /* Styling for extra details like age/death */
+    display: inline-block; /* Keep on same line if possible */
+    margin-left: 0.5em; /* Space before detail */
+    font-size: 0.9em; /* Slightly smaller text for details */
+    color: #555; /* Grey out details slightly */
+}
+
+/* Ensure card structure remains */
+.card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+}
+.card h3 {
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--mid-gray);
+    font-size: 1.2rem;
+}
+
+/* Data tables */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9em; /* Smaller font for tables */
+}
+
+.data-table th,
+.data-table td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid var(--mid-gray);
+}
+
+.data-table th {
+    background-color: var(--light-gray);
+    font-weight: 600;
+}
+
+/* Tumor markers */
+.tumor-markers {
+    display: flex;
+    gap: 0.75rem; /* Smaller gap */
+    flex-wrap: wrap;
+    justify-content: center; /* Center markers */
+}
+
+.marker {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.75rem; /* Reduced padding */
+    border-radius: 8px;
+    width: 100px; /* Fixed width might be too small, make it flex basis */
+    flex-basis: 100px; /* Allow it to shrink/grow */
+    text-align: center;
+    font-size: 0.85em; /* Smaller font */
+}
+
+/* TNM display */
+.tnm-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* Allow smaller columns */
+    gap: 1rem;
+}
+
+.tnm-section h4 {
+    margin-bottom: 0.5rem;
+    color: var(--dark-gray);
+    font-size: 1.1em;
+}
+
+.tnm-section ul {
+    list-style: none;
+}
+
+.tnm-section li {
+    padding: 0.35rem 0;
+}
+
+/* Status badges */
+.status-badge {
+    display: inline-block;
+    padding: 0.35rem 0.75rem;
+    border-radius: 50px;
+    font-weight: 500;
+    font-size: 0.8em; /* Smaller font */
+}
+
+/* Therapy sections */
+.therapy-section {
+    margin-bottom: 1.5rem; /* Reduced margin */
+    padding-bottom: 0.75rem; /* Reduced padding */
+    border-bottom: 1px solid var(--mid-gray);
+}
+
+.therapy-section:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.therapy-section h4 {
+    color: var(--secondary-color);
+    margin-bottom: 0.75rem;
+    font-size: 1.2em;
+}
+
+.therapy-section h5 {
+    margin: 1rem 0 0.5rem;
+    font-size: 1.1em;
+}
+
+/* Genomics */
+.pathogenic {
+    color: var(--danger-color);
+    font-weight: bold;
+}
+
+/* Access Log Styles */
+.access-log h2 {
+    color: var(--dark-gray);
+    margin-bottom: 1.5rem;
+}
+
+.access-log .data-table {
+    /* Keep existing styles, but they might need further work for tables on very small screens */
+}
+
+/* Form styling enhancements */
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--dark-gray);
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--mid-gray);
+    border-radius: 4px;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+}
+
+.form-group input:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(44, 123, 182, 0.2);
+}
+
+/* QR Save Page Styles */
+.save-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.save-container h2 {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: var(--dark-gray);
+}
+
+.qr-display {
+    display: flex;
+    justify-content: center;
+    margin: 1.5rem 0;
+}
+
+#qr-canvas {
+    max-width: 250px; /* Make QR code potentially smaller */
+    width: 100%;
+    height: auto;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+/* Camera UI styling */
+#camera-container {
+    width: 100%; /* Ensure it uses available width */
+    max-width: 500px;
+    margin: 0 auto;
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    aspect-ratio: 4/3; /* Maintain aspect ratio */
+    margin-bottom: 1rem; /* Add space below camera view */
+}
+
+#camera-preview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background-color: #000;
+}
+
+#camera-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    border: 2px dashed var(--primary-color);
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.camera-instructions {
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    padding: 6px 12px; /* Reduced padding */
+    border-radius: 4px;
+    font-weight: 500;
+    font-size: 0.9em; /* Smaller font */
+}
+
+/* Responsive adjustments - Keep existing media query */
+@media (max-width: 768px) {
+    header .container {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    nav ul {
+        margin-top: 1rem;
+        /* Adjust navigation centering/stacking if needed */
+    }
+    
+    nav ul li {
+        /* Adjust margins if they wrap */
+        margin: 0.5rem 0.75rem;
+    }
+    
+    .dashboard {
+        grid-template-columns: 1fr; /* Stack cards vertically */
+    }
+    
+    #qr-reader {
+        width: 100%; /* Ensure it's fully responsive */
+        max-width: 95%; /* Use percentage for better fit */
+    }
+}
+
+/* Add a smaller breakpoint if needed */
+@media (max-width: 480px) {
+    body {
+        font-size: 15px; /* Slightly smaller base font on very small screens */
+    }
+    .container {
+        padding: 0 5px; /* Less horizontal padding */
+    }
+    header h1 {
+        font-size: 1.6rem;
+    }
+    nav ul {
+        justify-content: space-around; /* Distribute nav items */
+    }
+    nav ul li {
+        margin: 0.5rem 0.25rem; /* Even smaller spacing */
+    }
+    .card {
+        padding: 0.75rem; /* Reduced card padding */
+    }
+    .card h3 {
+        font-size: 1.1rem;
+    }
+    .btn {
+        padding: 0.6rem 1rem; /* Smaller button padding */
+        font-size: 0.9em; /* Smaller button text */
+    }
+    .qr-display {
+        margin: 1rem 0; /* Less margin */
+    }
+    #qr-canvas {
+        max-width: 200px; /* Even smaller QR code if needed */
+    }
+}
+
+/* Styling for Definition Lists (dl, dt, dd) */
+.info-list {
+    margin-bottom: 1rem;
+}
+.info-list dt {
+    font-weight: 600;
+    color: var(--dark-gray);
+    margin-bottom: 0.25rem;
+    font-size: 0.9em;
+}
+.info-list dd {
+    margin-left: 0;
+    margin-bottom: 0.8rem;
+    padding-left: 0.5rem;
+    border-left: 2px solid var(--mid-gray);
+}
+
+/* Styling for Genomics/Findings List */
+.findings-list {
+    list-style: disc;
+    padding-left: 1.5rem; /* Indent list */
+    margin-top: 0.5rem; /* Space above list */
+}
+.findings-list li {
+    margin-bottom: 0.75rem; /* Space between findings */
+    line-height: 1.4;
+}
+.findings-list li strong { /* Gene name */
+     margin-right: 0.3em;
+}
+.finding-significance {
+    font-style: italic;
+    margin-left: 0.5rem;
+}
+.pathogenic { /* Keep this for coloring pathogenic findings */
+    color: var(--danger-color);
+    font-weight: bold;
+}
+
+/* Other styles (TNM, Markers, Card) should already exist and be suitable */
+
+/* Styling for Definition Lists (dl, dt, dd) */
+.info-list {
+    margin-bottom: 1rem;
+}
+.info-list dt {
+    font-weight: 600;
+    color: var(--dark-gray);
+    margin-bottom: 0.25rem;
+    font-size: 0.9em;
+}
+.info-list dd {
+    margin-left: 0;
+    margin-bottom: 0.8rem;
+    padding-left: 0.5rem;
+    border-left: 2px solid var(--mid-gray);
+}
+
+/* Styling for Treatment Plan Section */
+.therapy-section {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--mid-gray);
+}
+.therapy-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+.therapy-section h4 { /* Chemo/Radio/Surgery headings */
+    color: var(--secondary-color);
+    margin-bottom: 0.5rem;
+    font-size: 1.2em;
+}
+.therapy-section h5 { /* 'Léky' heading */
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    font-size: 1em;
+}
+.therapy-section p {
+    margin-bottom: 0.5rem;
+}
+
+/* Styling for Drug List */
+.drug-list {
+    list-style: none; /* Remove default bullets */
+    padding-left: 0.5rem;
+    margin-top: 0.5rem; /* Space above list */
+}
+.drug-list li {
+    margin-bottom: 1rem; /* Space between drugs */
+    padding-left: 1rem;
+    border-left: 3px solid var(--primary-light); /* Visual indicator for each drug */
+}
+.drug-list li strong { /* Drug name */
+    display: block;
+    margin-bottom: 0.3rem;
+    font-size: 1.05em;
+}
+.drug-list .drug-details {
+    font-size: 0.9em;
+    color: #555;
+    margin-bottom: 0;
+    line-height: 1.5;
+}
+/* Style spans within drug details for better spacing */
+.drug-details span {
+    display: inline-block; /* Allow margin/padding */
+    margin-right: 0.5em; /* Space after the pipe separator visually */
+    padding-right: 0.5em; /* Space before the pipe separator visually */
+}
+.drug-details span:last-child {
+     margin-right: 0; /* No space after the last item */
+     padding-right: 0;
+}
+.drug-details span strong { /* Label within span */
+    display: inline; /* Keep label inline */
+    margin-right: 0.3em;
+}
+/* === Nicer Export Button Styles === */
+
+.button.button-export-pdf {
+    display: inline-flex; /* Use flexbox for easy icon alignment */
+    align-items: center; /* Vertically center icon and text */
+    justify-content: center; /* Horizontally center content */
+    padding: 8px 18px; /* Comfortable padding */
+    font-size: 0.95rem; /* Slightly smaller font */
+    font-weight: 400;
+    color: #fff; /* White text */
+    background-color: #6c757d; /* Bootstrap's secondary gray - change as needed */
+    border: 1px solid #6c757d;
+    border-radius: 0.25rem; /* Standard rounded corners */
+    text-decoration: none; /* Remove underline from link */
+    cursor: pointer;
+    transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out; /* Smooth transition */
+    white-space: nowrap; /* Prevent text wrapping */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.07); /* Subtle shadow */
+}
+
+.button.button-export-pdf:hover,
+.button.button-export-pdf:focus {
+    background-color: #5a6268; /* Darken on hover/focus */
+    border-color: #545b62;
+    color: #fff; /* Keep text white */
+    text-decoration: none;
+    outline: none; /* Remove default focus outline if desired */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Slightly larger shadow on hover */
+}
+
+.button.button-export-pdf:active {
+    background-color: #545b62; /* Slightly darker when clicked */
+    border-color: #4e555b;
+    box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125); /* Inner shadow when active */
+}
+
+
+.button.button-export-pdf i.fas.fa-file-pdf {
+    margin-right: 8px; /* Space between icon and text */
+    font-size: 1em; /* Make icon size relative to button font size */
+     /* vertical-align: middle; */ /* Might not be needed with flex align-items */
+}
+
+/* Container for the button */
+.export-controls {
+    text-align: right;
+    margin-bottom: 15px;
+    padding: 5px 0;
+}
+
+/* Hide the export button when printing the web page itself */
+@media print {
+    .export-controls {
+        display: none;
+    }
+}
+
+/* --- Basic Alert Styling (if not already in style.css) --- */
+.flash-messages {
+    margin-bottom: 15px;
+}
+.alert {
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
+.alert-error {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+.alert-info {
+    color: #0c5460;
+    background-color: #d1ecf1;
+    border-color: #bee5eb;
+}
+/* Add other categories like success, warning if needed */

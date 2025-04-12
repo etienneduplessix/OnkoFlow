@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OnkoPass - {% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    {# Font Awesome CDN Link #}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <style>
+        /* === Nicer Export Button Styles === */
+
+        .button.button-export-pdf {
+            display: inline-flex; /* Use flexbox for easy icon alignment */
+            align-items: center; /* Vertically center icon and text */
+            justify-content: center; /* Horizontally center content */
+            padding: 8px 18px; /* Comfortable padding */
+            font-size: 0.95rem; /* Slightly smaller font */
+            font-weight: 400;
+            color: #fff; /* White text */
+            background-color: #6c757d; /* Bootstrap's secondary gray - change as needed */
+            border: 1px solid #6c757d;
+            border-radius: 0.25rem; /* Standard rounded corners */
+            text-decoration: none; /* Remove underline from link */
+            cursor: pointer;
+            transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out; /* Smooth transition */
+            white-space: nowrap; /* Prevent text wrapping */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.07); /* Subtle shadow */
+        }
+
+        .button.button-export-pdf:hover,
+        .button.button-export-pdf:focus {
+            background-color: #5a6268; /* Darken on hover/focus */
+            border-color: #545b62;
+            color: #fff; /* Keep text white */
+            text-decoration: none;
+            outline: none; /* Remove default focus outline if desired */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Slightly larger shadow on hover */
+        }
+
+        .button.button-export-pdf:active {
+            background-color: #545b62; /* Slightly darker when clicked */
+            border-color: #4e555b;
+            box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125); /* Inner shadow when active */
+        }
+
+
+        .button.button-export-pdf i.fas.fa-file-pdf {
+            margin-right: 8px; /* Space between icon and text */
+            font-size: 1em; /* Make icon size relative to button font size */
+             /* vertical-align: middle; */ /* Might not be needed with flex align-items */
+        }
+
+        /* Container for the button */
+        .export-controls {
+            text-align: right;
+            margin-bottom: 15px;
+            padding: 5px 0;
+        }
+
+        /* Hide the export button when printing the web page itself */
+        @media print {
+            .export-controls {
+                display: none;
+            }
+        }
+
+        /* --- Basic Alert Styling (if not already in style.css) --- */
+        .flash-messages {
+            margin-bottom: 15px;
+        }
+        .alert {
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+        }
+        .alert-error {
+            color: #721c24;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+        .alert-info {
+            color: #0c5460;
+            background-color: #d1ecf1;
+            border-color: #bee5eb;
+        }
+        /* Add other categories like success, warning if needed */
+
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>OnkoPass</h1>
+            <nav>
+                <ul>
+                    {% if session.authorized %}
+                    {# Navigation for logged-in users #}
+                    <li><a href="{{ url_for('index') }}" class="{{ 'active' if request.path == url_for('index') or request.path == '/dashboard' }}">Přehled</a></li>
+                    <li><a href="{{ url_for('patient') }}" class="{{ 'active' if request.path == url_for('patient') }}">Pacient</a></li>
+                    <li><a href="{{ url_for('diagnosis') }}" class="{{ 'active' if request.path == url_for('diagnosis') }}">Diagnóza</a></li>
+                    <li><a href="{{ url_for('treatment') }}" class="{{ 'active' if request.path == url_for('treatment') }}">Léčba</a></li>
+                    <li><a href="{{ url_for('logout') }}" class="{{ 'active' if request.path == url_for('logout') }}">Odhlásit</a></li>
+                    {% else %}
+                    {# Navigation for logged-out/unauthorized users #}
+                    <li><a href="{{ url_for('start') }}" class="{{ 'active' if request.path == url_for('start') or request.path == '/' }}">Zobrazit</a></li>
+                    {# Placeholder links - adjust as needed #}
+                    <li><a>Generovat</a></li>
+                    <li><a href="{{ url_for('save') }}" class="{{ 'active' if request.path == url_for('save') }}">Uložit</a></li>
+                    <li><a href="{{ url_for('upload_page') }}" class="{{ 'active' if request.path == url_for('upload_page') }}">Nahrát Soubor</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        {# Display flashed messages (errors, info) #}
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {# --- PDF Export Button --- #}
+        {# This button is visible on all pages when logged in #}
+        {% if session.authorized %}
+        <div class="export-controls">
+            {# Link points to the Flask endpoint that generates the PDF #}
+             <a href="{{ url_for('export_pdf') }}" class="button button-export-pdf" id="exportPdfButton">
+                <i class="fas fa-file-pdf"></i> Exportovat do PDF {# Added Icon #}
+            </a>
+        </div>
+        {% endif %}
+        {# --- End PDF Export Button --- #}
+
+        {# Main content block for individual pages #}
+        {% block content %}{% endblock %}
+
+    </main>
+
+    {# Optional: Add a footer here if needed #}
+    {#
+    <footer>
+        <div class="container">
+            <p>© {{ now.year }} OnkoPass</p>
+        </div>
+    </footer>
+    #}
+
+    {# Optional: Add global JavaScript files here if needed #}
+    {# <script src="{{ url_for('static', filename='js/main.js') }}"></script> #}
+</body>
+</html>

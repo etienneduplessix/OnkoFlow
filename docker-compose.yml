@@ -1,48 +1,17 @@
+version: '3.8'
+
 services:
-  backend:
+  rrrrrr:
     build:
-      context: ./backend
-    container_name: onkoflow-backend
+      context: .
+    container_name: onkoflow_webr
     ports:
-      - "8000:8000"
-    depends_on:
-      - redis
-    environment:
-      - REDIS_URL=redis://redis:6379
+      - "8000:5000"
     volumes:
-      - ./backend:/app
+      - ./backendd:/app
     networks:
       - onkoflow-net
 
-  frontend:
-    build:
-      context: ./frontend
-    container_name: onkoflow-frontend
-    ports:
-      - "3000:3000"
-    depends_on:
-      - backend
-    networks:
-      - onkoflow-net
-
-  llm:
-    build:
-      context: ./LLM
-    container_name: onkoflow-llm
-    ports:
-      - "5050:5050"
-    depends_on:
-      - backend
-    networks:
-      - onkoflow-net
-
-  redis:
-    image: redis:7
-    container_name: onkoflow-redis
-    ports:
-      - "6379:6379"
-    networks:
-      - onkoflow-net
 
 networks:
   onkoflow-net:

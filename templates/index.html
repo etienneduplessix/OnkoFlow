@@ -1,0 +1,140 @@
+{% extends "layout.html" %}
+
+{% block title %}Přehled{% endblock %}
+
+{% block content %}
+<div class="dashboard overview-page">
+    <h2>Přehled pacienta</h2>
+
+    {# --- Patient Card --- #}
+    {% if data.Pacient %}
+    <div class="card patient-card">
+        <h3>Pacient</h3>
+        <dl class="info-list">
+            {% if data.Pacient.cisloPojistence is not none %}
+                <dt>Číslo pojištěnce:</dt>
+                <dd>{{ data.Pacient.cisloPojistence }}</dd>
+            {% endif %}
+
+            {# Vek still needs calculation #}
+            {# <dt>Věk:</dt>
+               <dd>...</dd> #}
+
+            {% if data.Pacient.pohlavi is not none %}
+                <dt>Pohlaví:</dt>
+                <dd>{{ data.Pacient.pohlavi }}</dd>
+            {% endif %}
+
+            {% if data.Pacient.performanceStatus and data.Pacient.performanceStatus.skore is not none %}
+                <dt>Výkonnostní stav:</dt>
+                <dd>
+                    {{ data.Pacient.performanceStatus.skore }}
+                    {% if data.Pacient.performanceStatus.stupnice %}({{ data.Pacient.performanceStatus.stupnice }}){% endif %}
+                </dd>
+            {% endif %}
+        </dl>
+    </div>
+    {% endif %}
+
+    {# --- Diagnosis Card --- #}
+    {% if data.OnkologickeOnemocneni and data.OnkologickeOnemocneni|length > 0 %}
+         {% set diag = data.OnkologickeOnemocneni[0] %}
+        <div class="card diagnosis-card">
+            <h3>Diagnóza</h3>
+            <dl class="info-list">
+                {% if diag.datumDiagnozy is not none %}
+                    <dt>Datum diagnózy:</dt>
+                    <dd>{{ diag.datumDiagnozy }}</dd>
+                {% endif %}
+                {% if diag.histologickyTypNadoru is not none %}
+                    <dt>Histologie:</dt>
+                    <dd>{{ diag.histologickyTypNadoru }}</dd>
+                {% endif %}
+                {% if diag.kodMKN10 is not none %}
+                    <dt>MKN-10 kód:</dt>
+                    <dd>{{ diag.kodMKN10 }}</dd>
+                {% endif %}
+            </dl>
+        </div>
+    {% endif %}
+
+    {# --- Genomics Card --- #}
+    {% if data.Genomika and data.Genomika.genomickeNalezy %}
+    <div class="card genomics-card">
+        <h3>Genomické nálezy</h3>
+        <ul class="findings-list">
+            {% set has_genomic_findings = false %}
+            {% for nalez in data.Genomika.genomickeNalezy %}
+                {% if nalez.pozitivniGen is not none or nalez.varianta is not none %}
+                    {% set has_genomic_findings = true %}
+                    <li>
+                       {% if nalez.pozitivniGen is not none %}<strong>{{ nalez.pozitivniGen }}:</strong>{% endif %}
+                       {% if nalez.varianta is not none %} {{ nalez.varianta }}{% endif %}
+                    </li>
+                {% endif %}
+            {% endfor %}
+            {% if not has_genomic_findings %}
+                 <li><em>Žádné relevantní genomické nálezy.</em></li>
+            {% endif %}
+        </ul>
+    </div>
+    {% endif %}
+
+    {# --- Treatment Plan Card (Overview) --- #}
+    {% if data.Lecba and data.Lecba.prvniLinieTerapie and data.Lecba.prvniLinieTerapie|length > 0 %}
+        {% set first_line = data.Lecba.prvniLinieTerapie[0] %}
+        {% if first_line.chemoterapie or first_line.radioterapie or first_line.chirurgie or first_line.hormonalniTerapie or first_line.imunoterapie %}
+        <div class="card treatment-card">
+            <h3>Léčebný plán (1. linie - Přehled)</h3>
+            <div class="treatment-summary">
+                {% if first_line.chemoterapie %}
+                    <p><strong>Chemoterapie:</strong>{% if first_line.chemoterapie.rezim %} {{ first_line.chemoterapie.rezim }}{% else %} Ano{% endif %}</p>
+                {% endif %}
+                {% if first_line.hormonalniTerapie %}
+                    <p><strong>Hormonální Terapie:</strong>{% if first_line.hormonalniTerapie.agent %} {{ first_line.hormonalniTerapie.agent }}{% else %} Ano{% endif %}</p>
+                {% endif %}
+                {% if first_line.imunoterapie %}
+                    <p><strong>Imunoterapie:</strong>{% if first_line.imunoterapie.agent %} {{ first_line.imunoterapie.agent }}{% else %} Ano{% endif %}</p>
+                {% endif %}
+                {% if first_line.radioterapie %}
+                    <p><strong>Radioterapie:</strong>{% if first_line.radioterapie.cil %} {{ first_line.radioterapie.cil }}{% else %} Ano{% endif %}</p>
+                {% endif %}
+                {% if first_line.chirurgie %}
+                    <p><strong>Chirurgie:</strong>{% if first_line.chirurgie.vykon %} {{ first_line.chirurgie.vykon }}{% else %} Ano{% endif %}</p>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    {% endif %}
+
+    {# --- Disease Status Card --- #}
+    {% if data.Vysledek and data.Vysledek|length > 0 %}
+        {% set last_status = data.Vysledek[-1] %}
+        <div class="card status-card">
+            <h3>Stav onemocnění (poslední záznam)</h3>
+            <dl class="info-list">
+                {% if last_status.casovyBodHodnoceni is not none %}
+                    <dt>Hodnocení:</dt>
+                    <dd>{{ last_status.casovyBodHodnoceni }}</dd>
+                {% endif %}
+                {% if last_status.stavOnemocneni is not none %}
+                    <dt>Stav:</dt>
+                    <dd>
+                        {% set current_status = last_status.stavOnemocneni %}
+                        <span class="status-badge {{ current_status | lower | replace(' ', '-') | replace('(', '') | replace(')', '') | replace('.', '') | replace(':', '') }}">{{ current_status }}</span>
+                    </dd>
+                 {% endif %}
+                 {% if last_status.datumProgrese is not none %}
+                    <dt>Datum progrese:</dt><dd>{{ last_status.datumProgrese }}</dd>
+                {% endif %}
+                {% if last_status.datumRecidivy is not none %}
+                    <dt>Datum recidivy:</dt><dd>{{ last_status.datumRecidivy }}</dd>
+                {% endif %}
+                {% if last_status.datumUmrti is not none %}
+                    <dt>Datum úmrtí:</dt><dd>{{ last_status.datumUmrti }}{% if last_status.pricinaUmrti %} (Příčina: {{ last_status.pricinaUmrti }}){% endif %}</dd>
+                {% endif %}
+            </dl>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

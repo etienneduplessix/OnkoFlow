@@ -1,0 +1,76 @@
+{% extends "layout.html" %}
+
+{% block title %}Skenování QR kódu{% endblock %}
+
+{% block content %}
+<div class="start-container">
+    <h2>Přístup k datům pacienta</h2>
+    
+    <div class="card">
+        <h3>Naskenujte QR kód</h3>
+        
+        <div class="qr-container">
+            <div id="camera-container">
+                <video id="camera-preview" autoplay playsinline></video>
+                <canvas id="camera-canvas" style="display:none;"></canvas>
+                <div id="camera-overlay">
+                    <div class="camera-instructions">Vycentrujte QR kód</div>
+                </div>
+            </div>
+            <div id="qr-reader-results"></div>
+        </div>
+        
+        <div class="button-container">
+            <button id="start-camera" class="btn primary">Zapnout kameru</button>
+            <button id="stop-camera" class="btn secondary" style="display:none;">Ukončit</button>
+        </div>
+    </div>
+    
+    <div class="card" id="pass-form" style="display:none;">
+        <h3>Zadejte přístupové údaje</h3>
+        
+        <form action="{{ url_for('verify') }}" method="post">
+            <input type="hidden" id="qr-data" name="qr_data" value="">
+            
+            <div class="form-group">
+                <label for="pass-code">Přístupový kód:</label>
+                <input type="password" id="pass-code" name="pass_code" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="icz">Zadejte identifikační číslo poskytovatele zdravotních služeb (IČZ):</label>
+                <input type="text" id="icz" name="icz" required>
+            </div>
+            
+            <div class="button-container">
+                <button type="submit" class="btn primary">Ověřit</button>
+            </div>
+        </form>
+    </div>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="messages-container">
+                {% for category, message in messages %}
+                    <div class="alert {{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    
+    <div class="instructions">
+        <h4>Instrukce:</h4>
+        <ol>
+            <li>Klikněte na "Zapnout kameru"</li>
+            <li>Povolte přístup ke kameře</li>
+            <li>Vycentrujte OnkoPass QR kód pacienta v rámečku</li>
+            <li>Systém automaticky rozpozná a naskenuje QR kód</li>
+            <li>Zadejte přístupový kód, který vám sdělil pacient</li>
+            <li>Vyplňte své identifikační číslo poskytovatele zdravotních služeb (IČZ)</li>
+        </ol>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+<script src="{{ url_for('static', filename='js/qr-scanner.js') }}"></script>
+{% endblock %}

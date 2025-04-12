@@ -1,0 +1,20 @@
+{% if data.Genomika and data.Genomika.genomickeNalezy %}
+<div class="card">
+    <h2>Genomické nálezy</h2>
+    <ul class="findings-list" style="list-style: disc; padding-left: 20px;">
+        {% set has_genomic_findings = false %}
+        {% for nalez in data.Genomika.genomickeNalezy %}
+         {% if nalez.pozitivniGen is not none or nalez.varianta is not none %}
+            {% set has_genomic_findings = true %}
+            <li>
+                {% if nalez.pozitivniGen is not none %}<strong>{{ nalez.pozitivniGen }}:</strong>{% endif %}
+                {% if nalez.varianta is not none %} {{ nalez.varianta }}{% endif %}
+            </li>
+         {% endif %}
+        {% endfor %}
+    </ul>
+    {% if not has_genomic_findings %}
+         <p><em>Žádné relevantní genomické nálezy nebyly zaznamenány.</em></p>
+    {% endif %}
+</div>
+{% endif %}

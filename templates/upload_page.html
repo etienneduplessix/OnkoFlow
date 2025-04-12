@@ -1,0 +1,106 @@
+{% extends 'layout.html' %}
+
+{% block title %}Nahrát Soubor{% endblock %}
+
+{% block content %}
+{# Use a container similar to start page or create a specific one #}
+<div class="start-container upload-form-container"> {# Added upload-form-container for potential specific styling #}
+    <div class="card"> {# Using card style for background, padding, shadow #}
+        <h2 style="text-align: center; color: var(--primary-color); margin-bottom: 1.5rem;">Nahrát Soubor</h2> {# Style heading similar to others #}
+
+        {# Optional: Add context if needed #}
+        <p style="text-align: center; font-size: 0.9em; margin-bottom: 1.5rem; color: #555;">
+            Tato sekce je určena pro specifické nahrávání souborů. Pokud jste pacient nebo lékař, použijte prosím <a href="{{ url_for('start') }}" style="color: var(--primary-color); text-decoration: underline;">hlavní vstupní stránku</a>.
+        </p>
+
+        <!-- Important: Add method="POST" and enctype="multipart/form-data" -->
+        <form id="uploadForm" action="/upload" method="POST" enctype="multipart/form-data">
+            <div class="form-group"> {# Use existing form group styling #}
+                <label for="fileInput">Vyberte soubor:</label>
+                <input
+                    type="file"
+                    id="fileInput"
+                    name="file" {# Good practice to add name #}
+                    accept=".png,.jpg,.jpeg,.pdf,.doc,.docx"
+                    {# Input inherits styling from .form-group input in style.css #}
+                    required
+                />
+                 <p style="font-size: 0.8em; color: #777; margin-top: 5px;">Povolené typy: PNG, JPG, JPEG, PDF, DOC, DOCX.</p>
+            </div>
+
+            <div class="button-container" style="justify-content: center;"> {# Center the button #}
+                <button
+                    type="submit"
+                    class="btn primary" {# Use existing button styles #}
+                    style="width: 100%; max-width: 250px;" {# Make button wide but not excessively so #}
+                    id="uploadButton"
+                >
+                    Nahrát Soubor
+                </button>
+            </div>
+        </form>
+
+        {# Status message area #}
+        <p id="statusMessage" style="margin-top: 1.5rem; text-align: center; font-weight: 500; min-height: 1.2em;"></p> {# Reserve space #}
+    </div>
+</div>
+{% endblock %}
+
+{# Add the JavaScript to the scripts block #}
+{% block scripts %}
+{{ super() }} {# Include scripts from parent template if any #}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('uploadForm');
+        const fileInput = document.getElementById('fileInput');
+        const statusMessage = document.getElementById('statusMessage');
+        const uploadButton = document.getElementById('uploadButton');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault(); // Prevent traditional form submission
+            
+            statusMessage.textContent = 'Nahrávám...';
+            statusMessage.style.color = '#555';
+            uploadButton.disabled = true; // Prevent multiple submissions
+            
+            const file = fileInput.files[0];
+            if (!file) {
+                statusMessage.textContent = "⚠️ Prosím, vyberte nejprve soubor.";
+                statusMessage.style.color = 'var(--warning-color)';
+                uploadButton.disabled = false;
+                return;
+            }
+            
+            const formData = new FormData(form); // This will include all form fields with their names
+            
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData,
+                    // Don't set Content-Type header, let browser set it with boundary parameter
+                });
+                
+                uploadButton.disabled = false;
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    statusMessage.textContent = `✅ ${result.message || 'Soubor úspěšně nahrán!'}`;
+                    statusMessage.style.color = 'var(--success-color)';
+                    fileInput.value = ''; // Clear the input on success
+                } else {
+                    const errorData = await response.json().catch(() => ({ 
+                        message: 'Nahrávání selhalo. Server vrátil chybu.' 
+                    }));
+                    statusMessage.textContent = `❌ ${errorData.message || `Nahrávání selhalo (Stav: ${response.status})`}`;
+                    statusMessage.style.color = 'var(--danger-color)';
+                }
+            } catch (err) {
+                console.error("Upload error:", err);
+                statusMessage.textContent = "⚠️ Chyba sítě nebo serveru při nahrávání.";
+                statusMessage.style.color = 'var(--danger-color)';
+                uploadButton.disabled = false;
+            }
+        });
+    });
+</script>
+{% endblock %}

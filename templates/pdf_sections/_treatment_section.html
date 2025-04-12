@@ -1,0 +1,164 @@
+{# templates/pdf_sections/_treatment_section.html #}
+
+{% if data.Lecba %}
+<div class="card">
+    <h2>Léčba</h2>
+
+    {# --- First Line Therapy --- #}
+    {% if data.Lecba.prvniLinieTerapie and data.Lecba.prvniLinieTerapie|length > 0 %}
+        {% set first_line = data.Lecba.prvniLinieTerapie[0] %}
+        <h3>První linie terapie</h3>
+
+        {# Check if *any* therapy type has data before showing the section #}
+        {% if first_line.chemoterapie or first_line.radioterapie or first_line.chirurgie or first_line.hormonalniTerapie or first_line.imunoterapie or first_line.transplantaceKmenovychBunek %}
+
+             {# --- Chemotherapy Section --- #}
+              {% if first_line.chemoterapie %}
+                 <div class="therapy-section">
+                     <h4>Chemoterapie</h4>
+                     {% if first_line.chemoterapie.rezim %}<p><strong>Režim:</strong> {{ first_line.chemoterapie.rezim }}</p>{% endif %}
+                     {% if first_line.chemoterapie.datumZacatku or first_line.chemoterapie.datumUkonceni %}
+                     <p>
+                         {% if first_line.chemoterapie.datumZacatku %}<strong>Začátek:</strong> {{ first_line.chemoterapie.datumZacatku }}{% endif %}
+                         {% if first_line.chemoterapie.datumZacatku and first_line.chemoterapie.datumUkonceni %} | {% endif %}
+                         {% if first_line.chemoterapie.datumUkonceni %}<strong>Konec:</strong> {{ first_line.chemoterapie.datumUkonceni }}{% endif %}
+                     </p>
+                     {% endif %}
+
+                     {% if first_line.chemoterapie.leky %}
+                         <h5>Léky</h5>
+                         {% set has_chemo_drugs = false %}
+                         <ul class="drug-list" style="list-style: disc; padding-left: 20px;">
+                             {% for lek in first_line.chemoterapie.leky %}
+                              {% if lek.nazev or lek.davka or lek.zpusobPodani or lek.pocetCyklu or lek.harmonogram %}
+                                 {% set has_chemo_drugs = true %}
+                                 <li>
+                                     {% if lek.nazev %}<strong>{{ lek.nazev }}</strong><br>{% endif %}
+                                     <span class="drug-details" style="font-size: 9pt;"> {# Smaller font for details #}
+                                         {% if lek.davka %}<span>Dávka: {{ lek.davka }}</span>{% endif %}
+                                         {% if lek.davka and lek.zpusobPodani %} | {% endif %}
+                                         {% if lek.zpusobPodani %}<span>Způsob: {{ lek.zpusobPodani }}</span>{% endif %}
+                                         {% if lek.zpusobPodani and lek.pocetCyklu %} | {% endif %}
+                                         {% if lek.pocetCyklu %}<span>Cykly: {{ lek.pocetCyklu }}</span>{% endif %}
+                                         {% if lek.pocetCyklu and lek.harmonogram %} | {% endif %}
+                                         {% if lek.harmonogram %}<span>Harmonogram: {{ lek.harmonogram }}</span>{% endif %}
+                                     </span>
+                                 </li>
+                               {% endif %}
+                              {% endfor %}
+                         </ul>
+                         {% if not has_chemo_drugs %}
+                              <p><em>Žádné relevantní léky chemoterapie nebyly zaznamenány.</em></p>
+                         {% endif %}
+                     {% endif %}
+                 </div>
+             {% endif %}
+
+              {# --- Hormonal Therapy Section --- #}
+              {% if first_line.hormonalniTerapie %}
+                  <div class="therapy-section">
+                      <h4>Hormonální terapie</h4>
+                      {% if first_line.hormonalniTerapie.agent %}<p><strong>Lék (Agent):</strong> {{ first_line.hormonalniTerapie.agent }}</p>{% endif %}
+                      {% if first_line.hormonalniTerapie.datumZacatku or first_line.hormonalniTerapie.datumUkonceni %}
+                      <p>
+                          {% if first_line.hormonalniTerapie.datumZacatku %}<strong>Začátek:</strong> {{ first_line.hormonalniTerapie.datumZacatku }}{% endif %}
+                          {% if first_line.hormonalniTerapie.datumZacatku and first_line.hormonalniTerapie.datumUkonceni %} | {% endif %}
+                          {% if first_line.hormonalniTerapie.datumUkonceni %}<strong>Konec:</strong> {{ first_line.hormonalniTerapie.datumUkonceni }}{% endif %}
+                      </p>
+                      {% endif %}
+                  </div>
+              {% endif %}
+
+              {# --- Immunotherapy Section --- #}
+              {% if first_line.imunoterapie %}
+                  <div class="therapy-section">
+                      <h4>Imunoterapie</h4>
+                      {% if first_line.imunoterapie.agent %}<p><strong>Lék (Agent):</strong> {{ first_line.imunoterapie.agent }}</p>{% endif %}
+                      {% if first_line.imunoterapie.datumZacatku or first_line.imunoterapie.datumUkonceni %}
+                      <p>
+                          {% if first_line.imunoterapie.datumZacatku %}<strong>Začátek:</strong> {{ first_line.imunoterapie.datumZacatku }}{% endif %}
+                          {% if first_line.imunoterapie.datumZacatku and first_line.imunoterapie.datumUkonceni %} | {% endif %}
+                          {% if first_line.imunoterapie.datumUkonceni %}<strong>Konec:</strong> {{ first_line.imunoterapie.datumUkonceni }}{% endif %}
+                      </p>
+                      {% endif %}
+                  </div>
+              {% endif %}
+
+              {# --- Radiotherapy Section --- #}
+              {% if first_line.radioterapie %}
+                  <div class="therapy-section">
+                      <h4>Radioterapie</h4>
+                      {% if first_line.radioterapie.cil %}<p><strong>Cíl:</strong> {{ first_line.radioterapie.cil }}</p>{% endif %}
+                      {% if first_line.radioterapie.modalita or first_line.radioterapie.technika %}
+                          <p>
+                              {% if first_line.radioterapie.modalita %}<strong>Modalita:</strong> {{ first_line.radioterapie.modalita }}{% endif %}
+                              {% if first_line.radioterapie.modalita and first_line.radioterapie.technika %} | {% endif %}
+                              {% if first_line.radioterapie.technika %}<strong>Technika:</strong> {{ first_line.radioterapie.technika }}{% endif %}
+                          </p>
+                       {% endif %}
+                      {% if first_line.radioterapie.davka and first_line.radioterapie.davka.hodnota is not none %}
+                           <p><strong>Dávka:</strong> {{ first_line.radioterapie.davka.hodnota }}{% if first_line.radioterapie.davka.jednotka %} {{ first_line.radioterapie.davka.jednotka }}{% endif %}
+                           {% if first_line.radioterapie.pocetFrakci %} / {{ first_line.radioterapie.pocetFrakci }} frakcí{% endif %}</p>
+                      {% endif %}
+                      {% if first_line.radioterapie.datumZacatku or first_line.radioterapie.datumUkonceni %}
+                       <p>
+                           {% if first_line.radioterapie.datumZacatku %}<strong>Začátek:</strong> {{ first_line.radioterapie.datumZacatku }}{% endif %}
+                           {% if first_line.radioterapie.datumZacatku and first_line.radioterapie.datumUkonceni %} | {% endif %}
+                           {% if first_line.radioterapie.datumUkonceni %}<strong>Konec:</strong> {{ first_line.radioterapie.datumUkonceni }}{% endif %}
+                       </p>
+                       {% endif %}
+                  </div>
+              {% endif %}
+
+               {# --- Surgery Section --- #}
+               {% if first_line.chirurgie %}
+                 <div class="therapy-section">
+                     <h4>Chirurgie</h4>
+                     {% if first_line.chirurgie.vykon %}<p><strong>Výkon:</strong> {{ first_line.chirurgie.vykon }}</p>{% endif %}
+                     {% if first_line.chirurgie.datum %}<p><strong>Datum:</strong> {{ first_line.chirurgie.datum }}</p>{% endif %}
+                     {% if first_line.chirurgie.vysledek %}<p><strong>Výsledek:</strong> {{ first_line.chirurgie.vysledek }}</p>{% endif %}
+                     {% if first_line.chirurgie.komplikace %}<p><strong>Komplikace:</strong> {{ first_line.chirurgie.komplikace }}</p>{% endif %}
+                     {% if first_line.chirurgie.propusteni %}<p><strong>Propuštění:</strong> {{ first_line.chirurgie.propusteni }}</p>{% endif %}
+                 </div>
+             {% endif %}
+
+              {# --- Stem Cell Transplant Section --- #}
+             {% if first_line.transplantaceKmenovychBunek %}
+                 <div class="therapy-section">
+                     <h4>Transplantace kmenových buněk</h4>
+                     {% if first_line.transplantaceKmenovychBunek.typ %}<p><strong>Typ:</strong> {{ first_line.transplantaceKmenovychBunek.typ }}</p>{% endif %}
+                     {% if first_line.transplantaceKmenovychBunek.datum %}<p><strong>Datum:</strong> {{ first_line.transplantaceKmenovychBunek.datum }}</p>{% endif %}
+                 </div>
+             {% endif %}
+
+        {% else %}
+            {# Message if first_line exists but has no therapy types with data #}
+            <p><em>Žádný specifický typ terapie v první linii nebyl zaznamenán.</em></p>
+        {% endif %}
+
+         {# --- Reason for stopping treatment --- #}
+        {% if data.Lecba.duvodUkonceniLecby %}
+            <div class="therapy-section">
+               <h4 style="margin-top: 1em;">Ukončení léčby (1. linie)</h4>
+               <p><strong>Důvod:</strong> {{ data.Lecba.duvodUkonceniLecby }}</p>
+            </div>
+        {% endif %}
+    {% else %}
+        {# Message if prvniLinieTerapie array doesn't exist or is empty #}
+        <p><em>Informace o první linii terapie nejsou k dispozici.</em></p>
+    {% endif %}
+
+     {# --- Reported Codes --- #}
+    {% if data.Lecba.vykazovaneKody %}
+        {% set has_codes = false %}{% for code in data.Lecba.vykazovaneKody %}{% if code.kod or code.datum %}{% set has_codes = true %}{% endif %}{% endfor %}
+        {% if has_codes %}
+            <h3 style="margin-top: 1.5em;">Vykazované kódy</h3>
+            <ul style="list-style: none; padding-left: 0; font-size: 9pt;">
+                {% for code in data.Lecba.vykazovaneKody %}
+                    {% if code.kod or code.datum %}<li>{% if code.kod %}{{ code.kod }}{% endif %}{% if code.datum %} ({{ code.datum }}){% endif %}</li>{% endif %}
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endif %}
+</div>
+{% endif %} {# End if data.Lecba #}

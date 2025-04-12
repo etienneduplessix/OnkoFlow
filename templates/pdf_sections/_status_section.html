@@ -1,0 +1,22 @@
+{% if data.Vysledek and data.Vysledek|length > 0 %}
+    {% set last_status = data.Vysledek[-1] %}
+    {% if last_status.casovyBodHodnoceni is not none or last_status.stavOnemocneni is not none or last_status.typDukazu is not none or last_status.datumProgrese is not none or last_status.datumRecidivy is not none or last_status.datumUmrti is not none %}
+    <div class="card">
+        <h2>Stav onemocnění (poslední záznam)</h2>
+        <dl class="info-list">
+            {% if last_status.casovyBodHodnoceni is not none %}<dt>Časový bod hodnocení:</dt><dd>{{ last_status.casovyBodHodnoceni }}</dd>{% endif %}
+            {% if last_status.stavOnemocneni is not none %}
+                <dt>Stav onemocnění:</dt>
+                <dd><span class="status-badge {{ last_status.stavOnemocneni | lower | replace(' ', '-') | replace('(', '') | replace(')', '') | replace('.', '') | replace(':', '') }}">{{ last_status.stavOnemocneni }}</span></dd>
+            {% endif %}
+            {% if last_status.typDukazu is not none %}<dt>Typ důkazu:</dt><dd>{{ last_status.typDukazu }}</dd>{% endif %}
+            {% if last_status.datumProgrese is not none %}<dt>Datum progrese:</dt><dd>{{ last_status.datumProgrese }}</dd>{% endif %}
+            {% if last_status.datumRecidivy is not none %}<dt>Datum recidivy:</dt><dd>{{ last_status.datumRecidivy }}</dd>{% endif %}
+            {% if last_status.datumUmrti is not none %}
+                <dt>Datum úmrtí:</dt><dd>{{ last_status.datumUmrti }}</dd>
+                {% if last_status.pricinaUmrti is not none %}<dt>Příčina úmrtí:</dt><dd>{{ last_status.pricinaUmrti }}</dd>{% endif %}
+            {% endif %}
+        </dl>
+    </div>
+    {% endif %}
+{% endif %}
